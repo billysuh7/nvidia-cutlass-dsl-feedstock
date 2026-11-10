@@ -50,16 +50,3 @@ To use CUDA ${other_ctk_major} instead, create an environment that asks for it:
 
     conda install nvidia-cutlass-dsl "cuda-version=${other_ctk_major}"
 EOF
-
-# The files above are copied from the redist archive rather than pip-installed,
-# so write a minimal dist-info for pip check / importlib.metadata to find.
-# Requires-Dist is omitted on purpose: conda already solves the dependencies.
-distinfo="$SP_DIR/nvidia_cutlass_dsl-${PKG_VERSION}.dist-info"
-mkdir -p "$distinfo"
-cat > "$distinfo/METADATA" <<EOF
-Metadata-Version: 2.1
-Name: nvidia-cutlass-dsl
-Version: ${PKG_VERSION}
-Summary: NVIDIA CUTLASS Python DSL (conda package)
-EOF
-echo conda > "$distinfo/INSTALLER"

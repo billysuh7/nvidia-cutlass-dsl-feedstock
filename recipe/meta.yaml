@@ -205,16 +205,10 @@ outputs:
         # Optional: only needed to disassemble the cubins when needed
         - cuda-nvdisasm
     test:
-      requires:
-        - pip
       imports:
         - cutlass
         - iket
       commands:
-        # Minimal dist-info so downstream `pip check` sees this package.
-        - test -f $SP_DIR/nvidia_cutlass_dsl-{{ version }}.dist-info/METADATA
-        - python -c "import importlib.metadata as m; assert m.version('nvidia-cutlass-dsl') == '{{ version }}'"
-        - pip show nvidia-cutlass-dsl
         # The .pth file is what makes the two imports above resolve out of
         # nvidia_cutlass_dsl/dsl_packages.
         - test -f $SP_DIR/nvidia_cutlass_dsl_packages.pth
