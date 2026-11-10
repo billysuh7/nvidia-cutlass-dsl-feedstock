@@ -2,7 +2,7 @@
 # apache-tvm-ffi publish no 3.14t packages. It will be enabled once all three do
 
 {% set name = "nvidia_cutlass_dsl" %}
-{% set version = "4.7.1" %}
+{% set version = "4.8.0" %}
 {% set arm_variant_type = arm_variant_type | default("sbsa") %}
 {% set cuda_compiler_version = cuda_compiler_version | default("None") %}
 {% set cuda_major = cuda_compiler_version.split(".")[0] %}
@@ -31,16 +31,16 @@ package:
 
 source:
   - url: "https://developer.download.nvidia.com/compute/nvidia-cutlass-dsl/redist/nvidia_cutlass_dsl/linux-x86_64/nvidia_cutlass_dsl-linux-x86_64-{{ version }}_cuda12-archive.tar.xz"  # [linux and x86_64 and (cuda_compiler_version or "").startswith("12")]
-    sha256: "d7134e3832cc5f5533e2ad87505794026b331de53a4a544221a8b41e2d34d309"  # [linux and x86_64 and (cuda_compiler_version or "").startswith("12")]
+    sha256: "343cfdfa3a019c1beaef1577bef85da37cb50cd3be6dbb472f4c34a1f51b6099"  # [linux and x86_64 and (cuda_compiler_version or "").startswith("12")]
   - url: "https://developer.download.nvidia.com/compute/nvidia-cutlass-dsl/redist/nvidia_cutlass_dsl/linux-x86_64/nvidia_cutlass_dsl-linux-x86_64-{{ version }}_cuda13-archive.tar.xz"  # [linux and x86_64 and (cuda_compiler_version or "").startswith("13")]
-    sha256: "8378b8c68aaab4d64b61dbf41fc8116c5fe14e67d47fc7c4d962330cb50da6cc"  # [linux and x86_64 and (cuda_compiler_version or "").startswith("13")]
+    sha256: "14c724e5e46df9bd49bc788b5f4fef44d187709ba5ee8f1c3876fc8e53aaabaa"  # [linux and x86_64 and (cuda_compiler_version or "").startswith("13")]
   - url: "https://developer.download.nvidia.com/compute/nvidia-cutlass-dsl/redist/nvidia_cutlass_dsl/linux-sbsa/nvidia_cutlass_dsl-linux-sbsa-{{ version }}_cuda12-archive.tar.xz"  # [linux and aarch64 and (cuda_compiler_version or "").startswith("12") and arm_variant_type == "sbsa"]
-    sha256: "d193d71d85ce8226cd81db6f0746ce260dc279b5ddf4b1febae764b7cc7c87a2"  # [linux and aarch64 and (cuda_compiler_version or "").startswith("12") and arm_variant_type == "sbsa"]
+    sha256: "40c1bcd9cb1e13cffa271425c6c572146a3e1a50a3f137bce2f9b14d6def3813"  # [linux and aarch64 and (cuda_compiler_version or "").startswith("12") and arm_variant_type == "sbsa"]
   - url: "https://developer.download.nvidia.com/compute/nvidia-cutlass-dsl/redist/nvidia_cutlass_dsl/linux-sbsa/nvidia_cutlass_dsl-linux-sbsa-{{ version }}_cuda13-archive.tar.xz"  # [linux and aarch64 and (cuda_compiler_version or "").startswith("13") and arm_variant_type == "sbsa"]
-    sha256: "d5d0c10ee8c3b6e0ba737f7478c948fc5a2476441c34b12da07f42590384b748"  # [linux and aarch64 and (cuda_compiler_version or "").startswith("13") and arm_variant_type == "sbsa"]
+    sha256: "51368813db1a90f37a0f51c12d673effebc0f6c240f7995693bc44f019d16e31"  # [linux and aarch64 and (cuda_compiler_version or "").startswith("13") and arm_variant_type == "sbsa"]
 
 build:
-  number: 1
+  number: 0
   skip: true  # [not (linux64 or aarch64) or cuda_compiler_version in ("None", "")]
 
 requirements:
@@ -205,10 +205,16 @@ outputs:
         # Optional: only needed to disassemble the cubins when needed
         - cuda-nvdisasm
     test:
+      requires:
+        - pip
       imports:
         - cutlass
         - iket
       commands:
+        # The dist-info from the redist archive is what downstream `pip check` looks for.
+        - test -f $SP_DIR/nvidia_cutlass_dsl-{{ version }}.dist-info/METADATA
+        - python -c "import importlib.metadata as m; assert m.version('nvidia-cutlass-dsl') == '{{ version }}'"
+        - pip show nvidia-cutlass-dsl
         # The .pth file is what makes the two imports above resolve out of
         # nvidia_cutlass_dsl/dsl_packages.
         - test -f $SP_DIR/nvidia_cutlass_dsl_packages.pth

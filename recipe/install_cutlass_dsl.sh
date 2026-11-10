@@ -50,3 +50,8 @@ To use CUDA ${other_ctk_major} instead, create an environment that asks for it:
 
     conda install nvidia-cutlass-dsl "cuda-version=${other_ctk_major}"
 EOF
+
+# The files above are copied rather than pip-installed, so pip check and
+# importlib.metadata only see this package through the dist-info that the
+# redist archive ships.
+cp -vrp "$SRC_DIR/nvidia_cutlass_dsl-${PKG_VERSION}.dist-info" "$SP_DIR/"
