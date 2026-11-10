@@ -1,5 +1,5 @@
-# Free-threaded CPython (3.14t) is not supported yet: numpy, protobuf and
-# apache-tvm-ffi publish no 3.14t packages. It will be enabled once all three do
+# Free-threaded CPython (3.14t) is not supported yet: protobuf publishes no
+# 3.14t packages. It will be enabled once it does
 
 {% set name = "nvidia_cutlass_dsl" %}
 {% set version = "4.8.0" %}
@@ -15,9 +15,8 @@
 
 # Runtime dependency bounds, mirroring the wheel's Requires-Dist metadata.
 {% set typing_extensions_min = "4.10" %}
-{% set cuda_python_min = "12.8" %}
-{% set protobuf_min = "6.30.2" %}
-{% set protobuf_max = "7" %}
+{% set cuda_bindings_min = "12.8" %}
+{% set protobuf_min = "4.21.12" %}
 
 # 3.14 and 3.14t both report py == 314; the `python` variant carries the ABI
 # build string (`3.14.* *_cp314t`)
@@ -186,10 +185,9 @@ outputs:
         - python
         # Python 3.11 and above have the `strenum` module built-in
         - backports.strenum  # [py<311]
-        - numpy
         - typing-extensions >={{ typing_extensions_min }}
-        - cuda-python >={{ cuda_python_min }}
-        - protobuf >={{ protobuf_min }},<{{ protobuf_max }}
+        - cuda-bindings >={{ cuda_bindings_min }}
+        - protobuf >={{ protobuf_min }}
         # Provides the `tvm_ffi` module used by the TVM-FFI interop paths.
         # load_module() → ctypes.CDLL → dlopen
         - apache-tvm-ffi
