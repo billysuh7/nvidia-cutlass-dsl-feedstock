@@ -1,8 +1,8 @@
-# Free-threaded CPython (3.14t) is not supported yet: numpy, protobuf and
-# apache-tvm-ffi publish no 3.14t packages. It will be enabled once all three do
+# Free-threaded CPython (3.14t) is not supported yet: protobuf publishes no
+# 3.14t packages. It will be enabled once it does
 
 {% set name = "nvidia_cutlass_dsl" %}
-{% set version = "4.7.1" %}
+{% set version = "4.8.0" %}
 {% set arm_variant_type = arm_variant_type | default("sbsa") %}
 {% set cuda_compiler_version = cuda_compiler_version | default("None") %}
 {% set cuda_major = cuda_compiler_version.split(".")[0] %}
@@ -11,13 +11,14 @@
 {% set cuda_major_other = "13" if cuda_major == "12" else "12" %}
 {% set platform = "linux-x86_64" %}  # [linux64]
 {% set platform = "linux-sbsa" %}  # [aarch64]
+{% set platform = "windows-x86_64" %}  # [win64]
 {% set extension = "tar.xz" %}  # [not win]
+{% set extension = "zip" %}  # [win]
 
 # Runtime dependency bounds, mirroring the wheel's Requires-Dist metadata.
 {% set typing_extensions_min = "4.10" %}
-{% set cuda_python_min = "12.8" %}
-{% set protobuf_min = "6.30.2" %}
-{% set protobuf_max = "7" %}
+{% set cuda_bindings_min = "12.8" %}
+{% set protobuf_min = "4.21.12" %}
 
 # 3.14 and 3.14t both report py == 314; the `python` variant carries the ABI
 # build string (`3.14.* *_cp314t`)
@@ -31,17 +32,21 @@ package:
 
 source:
   - url: "https://developer.download.nvidia.com/compute/nvidia-cutlass-dsl/redist/nvidia_cutlass_dsl/linux-x86_64/nvidia_cutlass_dsl-linux-x86_64-{{ version }}_cuda12-archive.tar.xz"  # [linux and x86_64 and (cuda_compiler_version or "").startswith("12")]
-    sha256: "d7134e3832cc5f5533e2ad87505794026b331de53a4a544221a8b41e2d34d309"  # [linux and x86_64 and (cuda_compiler_version or "").startswith("12")]
+    sha256: "343cfdfa3a019c1beaef1577bef85da37cb50cd3be6dbb472f4c34a1f51b6099"  # [linux and x86_64 and (cuda_compiler_version or "").startswith("12")]
   - url: "https://developer.download.nvidia.com/compute/nvidia-cutlass-dsl/redist/nvidia_cutlass_dsl/linux-x86_64/nvidia_cutlass_dsl-linux-x86_64-{{ version }}_cuda13-archive.tar.xz"  # [linux and x86_64 and (cuda_compiler_version or "").startswith("13")]
-    sha256: "8378b8c68aaab4d64b61dbf41fc8116c5fe14e67d47fc7c4d962330cb50da6cc"  # [linux and x86_64 and (cuda_compiler_version or "").startswith("13")]
+    sha256: "14c724e5e46df9bd49bc788b5f4fef44d187709ba5ee8f1c3876fc8e53aaabaa"  # [linux and x86_64 and (cuda_compiler_version or "").startswith("13")]
   - url: "https://developer.download.nvidia.com/compute/nvidia-cutlass-dsl/redist/nvidia_cutlass_dsl/linux-sbsa/nvidia_cutlass_dsl-linux-sbsa-{{ version }}_cuda12-archive.tar.xz"  # [linux and aarch64 and (cuda_compiler_version or "").startswith("12") and arm_variant_type == "sbsa"]
-    sha256: "d193d71d85ce8226cd81db6f0746ce260dc279b5ddf4b1febae764b7cc7c87a2"  # [linux and aarch64 and (cuda_compiler_version or "").startswith("12") and arm_variant_type == "sbsa"]
+    sha256: "40c1bcd9cb1e13cffa271425c6c572146a3e1a50a3f137bce2f9b14d6def3813"  # [linux and aarch64 and (cuda_compiler_version or "").startswith("12") and arm_variant_type == "sbsa"]
   - url: "https://developer.download.nvidia.com/compute/nvidia-cutlass-dsl/redist/nvidia_cutlass_dsl/linux-sbsa/nvidia_cutlass_dsl-linux-sbsa-{{ version }}_cuda13-archive.tar.xz"  # [linux and aarch64 and (cuda_compiler_version or "").startswith("13") and arm_variant_type == "sbsa"]
-    sha256: "d5d0c10ee8c3b6e0ba737f7478c948fc5a2476441c34b12da07f42590384b748"  # [linux and aarch64 and (cuda_compiler_version or "").startswith("13") and arm_variant_type == "sbsa"]
+    sha256: "51368813db1a90f37a0f51c12d673effebc0f6c240f7995693bc44f019d16e31"  # [linux and aarch64 and (cuda_compiler_version or "").startswith("13") and arm_variant_type == "sbsa"]
+  - url: "https://developer.download.nvidia.com/compute/nvidia-cutlass-dsl/redist/nvidia_cutlass_dsl/windows-x86_64/nvidia_cutlass_dsl-windows-x86_64-{{ version }}_cuda12-archive.zip"  # [win and x86_64 and (cuda_compiler_version or "").startswith("12")]
+    sha256: "552f6a16caf763aefbf01b4a56c7d25cd0bcb7cbc53cd522c844fa151d65ba54"  # [win and x86_64 and (cuda_compiler_version or "").startswith("12")]
+  - url: "https://developer.download.nvidia.com/compute/nvidia-cutlass-dsl/redist/nvidia_cutlass_dsl/windows-x86_64/nvidia_cutlass_dsl-windows-x86_64-{{ version }}_cuda13-archive.zip"  # [win and x86_64 and (cuda_compiler_version or "").startswith("13")]
+    sha256: "2c738eeeac960e0ac11c4f269b937d8b5414cd7c07713fb2cd145efbc2b0bcb7"  # [win and x86_64 and (cuda_compiler_version or "").startswith("13")]
 
 build:
-  number: 1
-  skip: true  # [not (linux64 or aarch64) or cuda_compiler_version in ("None", "")]
+  number: 0
+  skip: true  # [not (linux64 or aarch64 or win64) or cuda_compiler_version in ("None", "")]
 
 requirements:
   build:
@@ -58,7 +63,8 @@ outputs:
       ignore_run_exports:
         - cuda-version
     files:
-      - lib/libcute_dsl_runtime.so
+      - lib/libcute_dsl_runtime.so          # [linux]
+      - Library/bin/cute_dsl_runtime.dll    # [win]
     requirements:
       build:
         - {{ compiler('c') }}
@@ -71,7 +77,8 @@ outputs:
         - {{ pin_compatible("cuda-version", min_pin="x", max_pin="x") }}
     test:
       commands:
-        - test -f $PREFIX/lib/libcute_dsl_runtime.so
+        - test -f $PREFIX/lib/libcute_dsl_runtime.so                      # [linux]
+        - if not exist %LIBRARY_BIN%\\cute_dsl_runtime.dll exit 1         # [win]
     about:
       home: https://docs.nvidia.com/cutlass/latest/
       license: LicenseRef-NVIDIA-End-User-License-Agreement
@@ -94,8 +101,9 @@ outputs:
       run_exports:
         - {{ pin_subpackage("libcute-dsl-runtime", max_pin="x.x") }}
     files:
-      - include/CuteDSLRuntime.h
-      - lib/stubs
+      - include/CuteDSLRuntime.h            # [linux]
+      - lib/stubs                           # [linux]
+      - Library/include/CuteDSLRuntime.h    # [win]
     requirements:
       build:
         - {{ compiler('c') }}
@@ -109,9 +117,10 @@ outputs:
         - {{ pin_subpackage("libcute-dsl-runtime", exact=True) }}
     test:
       commands:
-        - test -f $PREFIX/include/CuteDSLRuntime.h
+        - test -f $PREFIX/include/CuteDSLRuntime.h                # [linux]
+        - if not exist %LIBRARY_INC%\\CuteDSLRuntime.h exit 1     # [win]
         # Cross-compile link stubs target aarch64 only,
-        # so only the x86_64 redist archive ships them
+        # so only the linux-x86_64 redist archive ships them
         - test -d $PREFIX/lib/stubs                               # [linux64]
     about:
       home: https://docs.nvidia.com/cutlass/latest/
@@ -130,7 +139,8 @@ outputs:
       ignore_run_exports:
         - cuda-version
     files:
-      - lib/libcuda_dialect_runtime_static.a
+      - lib/libcuda_dialect_runtime_static.a          # [linux]
+      - Library/lib/cuda_dialect_runtime_static.lib   # [win]
     requirements:
       build:
         - {{ compiler('c') }}
@@ -144,9 +154,11 @@ outputs:
         - {{ pin_subpackage("libcute-dsl-runtime-dev", exact=True) }}
     test:
       commands:
-        - test -f $PREFIX/lib/libcuda_dialect_runtime_static.a
+        - test -f $PREFIX/lib/libcuda_dialect_runtime_static.a                # [linux]
+        - if not exist %LIBRARY_LIB%\\cuda_dialect_runtime_static.lib exit 1  # [win]
         # Pulled in via the -dev dependency
-        - test -f $PREFIX/include/CuteDSLRuntime.h
+        - test -f $PREFIX/include/CuteDSLRuntime.h                            # [linux]
+        - if not exist %LIBRARY_INC%\\CuteDSLRuntime.h exit 1                 # [win]
     about:
       home: https://docs.nvidia.com/cutlass/latest/
       license: LicenseRef-NVIDIA-End-User-License-Agreement
@@ -160,7 +172,8 @@ outputs:
 
   # Python code + the CPython-ABI-specific extension module; one per python and CTK.
   - name: nvidia-cutlass-dsl
-    script: install_cutlass_dsl.sh
+    script: install_cutlass_dsl.sh   # [not win]
+    script: install_cutlass_dsl.bat  # [win]
     build:
       string: "py{{ py_tag }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"
       missing_dso_whitelist:
@@ -178,7 +191,8 @@ outputs:
         - cuda-version {{ cuda_compiler_version }}
         # Everything under cu{{ cuda_major }} is a symlink into $PREFIX/lib and $PREFIX/include,
         # so the real files have to be unpacked here for the links to resolve
-        # while this output is being built.
+        # while this output is being built. On Windows the entries are copies
+        # of these same files, so they have to be here to be copied.
         - {{ pin_subpackage("libcute-dsl-runtime", exact=True) }}
         - {{ pin_subpackage("libcute-dsl-runtime-dev", exact=True) }}
         - {{ pin_subpackage("libcute-dsl-runtime-static", exact=True) }}
@@ -186,10 +200,9 @@ outputs:
         - python
         # Python 3.11 and above have the `strenum` module built-in
         - backports.strenum  # [py<311]
-        - numpy
         - typing-extensions >={{ typing_extensions_min }}
-        - cuda-python >={{ cuda_python_min }}
-        - protobuf >={{ protobuf_min }},<{{ protobuf_max }}
+        - cuda-bindings >={{ cuda_bindings_min }}
+        - protobuf >={{ protobuf_min }}
         # Provides the `tvm_ffi` module used by the TVM-FFI interop paths.
         # load_module() → ctypes.CDLL → dlopen
         - apache-tvm-ffi
@@ -209,27 +222,37 @@ outputs:
         - pip
       imports:
         - cutlass
-        - iket
+        # The Windows redist archive does not ship iket.
+        - iket  # [linux]
       commands:
-        # Minimal dist-info so downstream `pip check` sees this package.
-        - test -f $SP_DIR/nvidia_cutlass_dsl-{{ version }}.dist-info/METADATA
+        # The dist-info from the redist archive is what downstream `pip check` looks for.
+        - test -f $SP_DIR/nvidia_cutlass_dsl-{{ version }}.dist-info/METADATA                         # [linux]
+        - if not exist %SP_DIR%\\nvidia_cutlass_dsl-{{ version }}.dist-info\\METADATA exit 1          # [win]
         - python -c "import importlib.metadata as m; assert m.version('nvidia-cutlass-dsl') == '{{ version }}'"
         - pip show nvidia-cutlass-dsl
-        # The .pth file is what makes the two imports above resolve out of
+        # The .pth file is what makes the imports above resolve out of
         # nvidia_cutlass_dsl/dsl_packages.
-        - test -f $SP_DIR/nvidia_cutlass_dsl_packages.pth
-        - test -d $SP_DIR/nvidia_cutlass_dsl/dsl_packages/cutlass
-        - test -d $SP_DIR/nvidia_cutlass_dsl/dsl_packages/iket
-        - test -f $SP_DIR/nvidia_cutlass_dsl/cu{{ cuda_major }}/lib/libcute_dsl_runtime.so
-        - test -f $SP_DIR/nvidia_cutlass_dsl/cu{{ cuda_major }}/lib/libcuda_dialect_runtime_static.a
-        - test -f $SP_DIR/nvidia_cutlass_dsl/cu{{ cuda_major }}/include/CuteDSLRuntime.h
+        - test -f $SP_DIR/nvidia_cutlass_dsl_packages.pth                                              # [linux]
+        - test -d $SP_DIR/nvidia_cutlass_dsl/dsl_packages/cutlass                                      # [linux]
+        - test -d $SP_DIR/nvidia_cutlass_dsl/dsl_packages/iket                                         # [linux]
+        - test -f $SP_DIR/nvidia_cutlass_dsl/cu{{ cuda_major }}/lib/libcute_dsl_runtime.so             # [linux]
+        - test -f $SP_DIR/nvidia_cutlass_dsl/cu{{ cuda_major }}/lib/libcuda_dialect_runtime_static.a   # [linux]
+        - test -f $SP_DIR/nvidia_cutlass_dsl/cu{{ cuda_major }}/include/CuteDSLRuntime.h               # [linux]
+        - if not exist %SP_DIR%\\nvidia_cutlass_dsl_packages.pth exit 1                                                  # [win]
+        - if not exist %SP_DIR%\\nvidia_cutlass_dsl\\dsl_packages\\cutlass\\__init__.py exit 1                           # [win]
+        - if not exist %SP_DIR%\\nvidia_cutlass_dsl\\cu{{ cuda_major }}\\lib\\cute_dsl_runtime.dll exit 1                # [win]
+        - if not exist %SP_DIR%\\nvidia_cutlass_dsl\\cu{{ cuda_major }}\\lib\\cuda_dialect_runtime_static.lib exit 1     # [win]
+        - if not exist %SP_DIR%\\nvidia_cutlass_dsl\\cu{{ cuda_major }}\\include\\CuteDSLRuntime.h exit 1                # [win]
         # Cross-compile link stubs target aarch64 only,
-        # so only the x86_64 redist archive ships them
+        # so only the linux-x86_64 redist archive ships them
         - test -d $SP_DIR/nvidia_cutlass_dsl/cu{{ cuda_major }}/lib/stubs   # [linux64]
-        - test -f $SP_DIR/nvidia_cutlass_dsl/cu{{ cuda_major_other }}/README.txt
+        - test -f $SP_DIR/nvidia_cutlass_dsl/cu{{ cuda_major_other }}/README.txt                       # [linux]
+        - if not exist %SP_DIR%\\nvidia_cutlass_dsl\\cu{{ cuda_major_other }}\\README.txt exit 1       # [win]
         # Installing this package has to bring the C/C++ use case with it.
-        - test -f $PREFIX/include/CuteDSLRuntime.h
-        - test -f $PREFIX/lib/libcuda_dialect_runtime_static.a
+        - test -f $PREFIX/include/CuteDSLRuntime.h                                   # [linux]
+        - test -f $PREFIX/lib/libcuda_dialect_runtime_static.a                       # [linux]
+        - if not exist %LIBRARY_INC%\\CuteDSLRuntime.h exit 1                        # [win]
+        - if not exist %LIBRARY_LIB%\\cuda_dialect_runtime_static.lib exit 1         # [win]
     about:
       home: https://docs.nvidia.com/cutlass/latest/
       license: LicenseRef-NVIDIA-End-User-License-Agreement
