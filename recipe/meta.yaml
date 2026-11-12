@@ -2,7 +2,7 @@
 # 3.14t packages. It will be enabled once it does
 
 {% set name = "nvidia_cutlass_dsl" %}
-{% set version = "4.8.0" %}
+{% set version = "4.8.1" %}
 {% set arm_variant_type = arm_variant_type | default("sbsa") %}
 {% set cuda_compiler_version = cuda_compiler_version | default("None") %}
 {% set cuda_major = cuda_compiler_version.split(".")[0] %}
@@ -32,17 +32,17 @@ package:
 
 source:
   - url: "https://developer.download.nvidia.com/compute/nvidia-cutlass-dsl/redist/nvidia_cutlass_dsl/linux-x86_64/nvidia_cutlass_dsl-linux-x86_64-{{ version }}_cuda12-archive.tar.xz"  # [linux and x86_64 and (cuda_compiler_version or "").startswith("12")]
-    sha256: "343cfdfa3a019c1beaef1577bef85da37cb50cd3be6dbb472f4c34a1f51b6099"  # [linux and x86_64 and (cuda_compiler_version or "").startswith("12")]
+    sha256: "1cde7985d91fbdd5b316dad7237ccc6ce7aeed03f2b9bd75fcc2f8a9ace12488"  # [linux and x86_64 and (cuda_compiler_version or "").startswith("12")]
   - url: "https://developer.download.nvidia.com/compute/nvidia-cutlass-dsl/redist/nvidia_cutlass_dsl/linux-x86_64/nvidia_cutlass_dsl-linux-x86_64-{{ version }}_cuda13-archive.tar.xz"  # [linux and x86_64 and (cuda_compiler_version or "").startswith("13")]
-    sha256: "14c724e5e46df9bd49bc788b5f4fef44d187709ba5ee8f1c3876fc8e53aaabaa"  # [linux and x86_64 and (cuda_compiler_version or "").startswith("13")]
+    sha256: "b134178485cf928e25a52649da438855eae90487752c9c1f30ee79a4b937ab21"  # [linux and x86_64 and (cuda_compiler_version or "").startswith("13")]
   - url: "https://developer.download.nvidia.com/compute/nvidia-cutlass-dsl/redist/nvidia_cutlass_dsl/linux-sbsa/nvidia_cutlass_dsl-linux-sbsa-{{ version }}_cuda12-archive.tar.xz"  # [linux and aarch64 and (cuda_compiler_version or "").startswith("12") and arm_variant_type == "sbsa"]
-    sha256: "40c1bcd9cb1e13cffa271425c6c572146a3e1a50a3f137bce2f9b14d6def3813"  # [linux and aarch64 and (cuda_compiler_version or "").startswith("12") and arm_variant_type == "sbsa"]
+    sha256: "8f0c8bb8b38206151d7f03aef2befc9a24f1667cb936eed5f2a7bcf027196279"  # [linux and aarch64 and (cuda_compiler_version or "").startswith("12") and arm_variant_type == "sbsa"]
   - url: "https://developer.download.nvidia.com/compute/nvidia-cutlass-dsl/redist/nvidia_cutlass_dsl/linux-sbsa/nvidia_cutlass_dsl-linux-sbsa-{{ version }}_cuda13-archive.tar.xz"  # [linux and aarch64 and (cuda_compiler_version or "").startswith("13") and arm_variant_type == "sbsa"]
-    sha256: "51368813db1a90f37a0f51c12d673effebc0f6c240f7995693bc44f019d16e31"  # [linux and aarch64 and (cuda_compiler_version or "").startswith("13") and arm_variant_type == "sbsa"]
+    sha256: "b2e1fb7feadf954b9492525bc2d023bb3d0b171a3f1c7aeb81b2a3bd3120a349"  # [linux and aarch64 and (cuda_compiler_version or "").startswith("13") and arm_variant_type == "sbsa"]
   - url: "https://developer.download.nvidia.com/compute/nvidia-cutlass-dsl/redist/nvidia_cutlass_dsl/windows-x86_64/nvidia_cutlass_dsl-windows-x86_64-{{ version }}_cuda12-archive.zip"  # [win and x86_64 and (cuda_compiler_version or "").startswith("12")]
-    sha256: "552f6a16caf763aefbf01b4a56c7d25cd0bcb7cbc53cd522c844fa151d65ba54"  # [win and x86_64 and (cuda_compiler_version or "").startswith("12")]
+    sha256: "f762654f0c795a32c858a46f741bebc80f3ab0bf605f7fcd38e5eea046e124bc"  # [win and x86_64 and (cuda_compiler_version or "").startswith("12")]
   - url: "https://developer.download.nvidia.com/compute/nvidia-cutlass-dsl/redist/nvidia_cutlass_dsl/windows-x86_64/nvidia_cutlass_dsl-windows-x86_64-{{ version }}_cuda13-archive.zip"  # [win and x86_64 and (cuda_compiler_version or "").startswith("13")]
-    sha256: "2c738eeeac960e0ac11c4f269b937d8b5414cd7c07713fb2cd145efbc2b0bcb7"  # [win and x86_64 and (cuda_compiler_version or "").startswith("13")]
+    sha256: "e9049aaee440dc9f5c81e0fdfa46dc397c77937652f32d96eacae82cb438c3e8"  # [win and x86_64 and (cuda_compiler_version or "").startswith("13")]
 
 build:
   number: 0
